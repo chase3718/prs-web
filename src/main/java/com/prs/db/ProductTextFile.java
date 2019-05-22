@@ -35,6 +35,10 @@ public class ProductTextFile {
 				while (line != null) {
 					List<String> fields = new ArrayList<>(5);
 					String[] s = line.split(FIELD_SEP);
+					if (s[0].equalsIgnoreCase("PRODUCTCODE") || s[0].equalsIgnoreCase("CODE")) {
+						line = in.readLine();
+						s = line.split(FIELD_SEP);
+					}
 					for (int i = 0; i < s.length; i++) {
 						fields.add(s[i]);
 					}

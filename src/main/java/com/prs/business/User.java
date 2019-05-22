@@ -21,6 +21,23 @@ public class User {
 	private boolean isReviewer;
 	//@JoinColumn(name="isadmin")
 	private boolean isAdmin;
+	
+	public User() {
+		super();
+	}
+	
+	public User(String userName, String password, String firstName, String lastName, String phoneNumber, String email,
+			boolean isReviewer, boolean isAdmin) {
+		super();
+		this.userName = userName;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.email = email;
+		this.isReviewer = isReviewer;
+		this.isAdmin = isAdmin;
+	}
 
 	public int getId() {
 		return id;
