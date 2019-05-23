@@ -2,6 +2,7 @@ package com.prs.web;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,12 +103,13 @@ public class PurchaseRequestController {
 		JsonResponse jr = null;
 		try {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
-				updateTotal(purchaseRequest);
-				purchaseRequest.setStatus("Review");
-				if (purchaseRequest.getTotal() <= 50) {
-					purchaseRequest.setStatus("Approved");
+				PurchaseRequest pr = purchaseRequestRepository.findById(purchaseRequest.getId()).get();
+				updateTotal(pr);
+				pr.setStatus("Review");
+				if (pr.getTotal() <= 50) {
+					pr.setStatus("Approved");
 				}
-				jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
+				jr = JsonResponse.getInstance(purchaseRequestRepository.save(pr));
 			} else {
 				jr = JsonResponse.getInstance("No PurchaseRequest exists with id: " + purchaseRequest.getId());
 			}
@@ -122,9 +124,10 @@ public class PurchaseRequestController {
 		JsonResponse jr = null;
 		try {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
-				if (purchaseRequest.getStatus().equals("Review")) {
-					purchaseRequest.setStatus("Aprroved");
-					jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
+				PurchaseRequest pr = purchaseRequestRepository.findById(purchaseRequest.getId()).get();
+				if (pr.getStatus().equals("Review")) {
+					pr.setStatus("Aprroved");
+					jr = JsonResponse.getInstance(purchaseRequestRepository.save(pr));
 				} else {
 					jr = JsonResponse.getInstance("Purchase Request must be in review");
 				}
@@ -141,27 +144,28 @@ public class PurchaseRequestController {
 	public JsonResponse reject(@RequestBody PurchaseRequest purchaseRequest) {
 		JsonResponse jr = null;
 		try {
-			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
-				if (purchaseRequest.getStatus().equals("Review")) {
-					purchaseRequest.setStatus("Rejected");
-					jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
-				} else {
-					jr = JsonResponse.getInstance("Purchase Request must be in review");
-				}
+			if (purchaseRequest.getStatus().equals("Review")) {
+				purchaseRequest.setStatus("Rejected");
+				jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
+			} else {
+				jr = JsonResponse.getInstance("Purchase Request must be in review");
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
+			e.printStackTrace();
 		}
 		return jr;
 	}
-	
+
 	@PutMapping("/reopen")
-	public JsonResponse reopen(PurchaseRequest purchaseRequest) {
+	public JsonResponse reopen(@RequestBody PurchaseRequest purchaseRequest) {
 		JsonResponse jr = null;
 		try {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
+
 				if (purchaseRequest.getStatus().equals("Rejected")) {
 					purchaseRequest.setStatus("New");
+					purchaseRequest.setReasonForRejection(null);
 					jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
 				} else {
 					jr = JsonResponse.getInstance("Purchase Request must be rejected");
@@ -174,12 +178,13 @@ public class PurchaseRequestController {
 		}
 		return jr;
 	}
-	
+
 	@DeleteMapping("/")
 	public JsonResponse delete(@RequestBody PurchaseRequest purchaseRequest) {
 		JsonResponse jr = null;
 		try {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
+
 				purchaseRequestRepository.delete(purchaseRequest);
 				jr = JsonResponse.getInstance("PurchaseRequest deleted");
 			} else {
@@ -196,6 +201,7 @@ public class PurchaseRequestController {
 		JsonResponse jr = null;
 		try {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
+
 				updateTotal(purchaseRequest);
 				jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
 			} else {

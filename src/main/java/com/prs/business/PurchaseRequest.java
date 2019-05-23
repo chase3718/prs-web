@@ -32,7 +32,11 @@ public class PurchaseRequest {
 	public PurchaseRequest() {
 		submittedDate = LocalDate.now();
 	}
-
+	
+	public PurchaseRequest(int id) {
+		this.id = id;
+	}
+	
 	public PurchaseRequest(User userid, String description, String justification, LocalDate dateNeeded,
 			String deliveryMode, String status, double total, LocalDate submittedDate, String reasonForRejection) {
 		super();
