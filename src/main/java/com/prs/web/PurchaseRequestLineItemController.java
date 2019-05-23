@@ -1,5 +1,7 @@
 package com.prs.web;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,12 +63,17 @@ public class PurchaseRequestLineItemController {
 	}
 
 	@PostMapping("/")
-	public JsonResponse add(@RequestBody PurchaseRequestLineItem purchaseRequestLineItem) {
+	public JsonResponse add(@RequestBody PurchaseRequestLineItem prli) {
 		JsonResponse jr = null;
+		PurchaseRequest pr = prRepo.findById(prli.getPurchaseRequest().getId()).get();
 		try {
-			PurchaseRequestLineItem prli = purchaseRequestLineItem;
-			jr = JsonResponse.getInstance(prliRepo.save(prli));
-			updateTotal(purchaseRequestLineItem);
+			if (pr.getStatus().equals("New")) {
+				jr = JsonResponse.getInstance(prliRepo.save(prli));
+				updateTotal(prli);
+			} else {
+				jr = JsonResponse.getInstance("Purchase request status must be new");
+			}
+
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 			e.printStackTrace();
@@ -99,25 +106,36 @@ public class PurchaseRequestLineItemController {
 				jr = JsonResponse.getInstance(prliRepo.save(purchaseRequestLineItem));
 				updateTotal(purchaseRequestLineItem);
 			} else {
-				jr = JsonResponse.getInstance("No PurchaseRequestLineItem exists with id: " + purchaseRequestLineItem.getId());
+				jr = JsonResponse
+						.getInstance("No PurchaseRequestLineItem exists with id: " + purchaseRequestLineItem.getId());
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 		}
 		return jr;
 	}
-	
+
 	private void updateTotal(PurchaseRequestLineItem prli) {
 		PurchaseRequest pr = prRepo.findById(prli.getPurchaseRequest().getId()).get();
-		
+
 		double total = 0;
 		Iterable<PurchaseRequestLineItem> lineItems = prliRepo.findAllByPurchaseRequestId(pr.getId());
-		for (PurchaseRequestLineItem li: lineItems) {
+		for (PurchaseRequestLineItem li : lineItems) {
 			Product p = productRepo.findById(li.getProduct().getId()).get();
 			Double lineTotal = li.getQuantity() * p.getPrice();
 			total += lineTotal;
 		}
+		total = round(total, 2);
 		pr.setTotal(total);
 		prRepo.save(pr);
+	}
+
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
 	}
 }

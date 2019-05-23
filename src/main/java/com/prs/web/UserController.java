@@ -92,7 +92,7 @@ public class UserController {
 		return jr;
 	}
 	
-	@PostMapping("/login") 
+	@PostMapping("/authenticate") 
 	public JsonResponse login(@RequestBody User user) {
 		JsonResponse jr = null;
 		try {

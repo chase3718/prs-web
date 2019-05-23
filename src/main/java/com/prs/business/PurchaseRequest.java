@@ -30,7 +30,7 @@ public class PurchaseRequest {
 	private String reasonForRejection;
 
 	public PurchaseRequest() {
-
+		submittedDate = LocalDate.now();
 	}
 
 	public PurchaseRequest(User userid, String description, String justification, LocalDate dateNeeded,

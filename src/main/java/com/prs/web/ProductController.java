@@ -54,14 +54,14 @@ public class ProductController {
 		return jr;
 
 	}
-	
+
 	@PostMapping("/fromFile")
 	public List<JsonResponse> addFromFile(@RequestBody Vendor vendor, @RequestParam String path) {
 		List<JsonResponse> jr = new ArrayList<JsonResponse>();
 		ProductTextFile ptf = new ProductTextFile(path);
 		try {
 			List<Product> products = ptf.getAll(vendor);
-			for (Product p: products) {
+			for (Product p : products) {
 				jr.add(JsonResponse.getInstance(productRepository.save(p)));
 			}
 		} catch (Exception e) {
@@ -69,7 +69,7 @@ public class ProductController {
 		}
 		return jr;
 	}
-	
+
 	@PostMapping("/")
 	public JsonResponse add(@RequestBody Product product) {
 		JsonResponse jr = null;
@@ -111,5 +111,75 @@ public class ProductController {
 		}
 		return jr;
 	}
-	
+
+	@GetMapping("/search")
+	public JsonResponse searchProducts(@RequestParam String search) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(productRepository.findByNameContaining(search));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+
+	@GetMapping("/filteredSearch")
+	public JsonResponse fileredSearchProducts(@RequestParam String search, @RequestParam String priceFilter,
+			@RequestParam double price, @RequestParam String vendor) {
+		JsonResponse jr = null;
+		Iterable<Product> products = productRepository.findByNameContaining(search);
+		List<Product> filteredProducts = new ArrayList<>();
+		try {
+			if (!vendor.isEmpty() || vendor.equals("")) {
+				for (Product p : products) {
+					if (p.getVendor().getName().equalsIgnoreCase(vendor)) {
+						if (priceFilter.equals(">")) {
+
+							if (p.getPrice() >= price) {
+								filteredProducts.add(p);
+							}
+
+						} else if (priceFilter.equals("<")) {
+
+							if (p.getPrice() <= price) {
+								filteredProducts.add(p);
+							}
+
+						} else {
+							filteredProducts.add(p);
+						}
+
+					}
+				}
+			} else {
+				for (Product p : products) {
+
+					if (priceFilter.equals(">")) {
+
+						if (p.getPrice() >= price) {
+							filteredProducts.add(p);
+						}
+
+					} else if (priceFilter.equals("<")) {
+
+						if (p.getPrice() <= price) {
+							filteredProducts.add(p);
+						}
+
+					} else {
+						filteredProducts.add(p);
+					}
+
+				}
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		if (filteredProducts.isEmpty()) {
+			jr = JsonResponse.getInstance(products);
+		} else {
+			jr = JsonResponse.getInstance(filteredProducts);
+		}
+		return jr;
+	}
 }
