@@ -65,9 +65,10 @@ public class PurchaseRequestLineItemController {
 	@PostMapping("/")
 	public JsonResponse add(@RequestBody PurchaseRequestLineItem prli) {
 		JsonResponse jr = null;
-		PurchaseRequest pr = prRepo.findById(prli.getPurchaseRequest().getId()).get();
+		PurchaseRequest pr = prli.getPurchaseRequest();
 		try {
 			if (pr.getStatus().equals("New")) {
+				
 				jr = JsonResponse.getInstance(prliRepo.save(prli));
 				updateTotal(prli);
 			} else {
@@ -103,8 +104,9 @@ public class PurchaseRequestLineItemController {
 		JsonResponse jr = null;
 		try {
 			if (prliRepo.existsById(purchaseRequestLineItem.getId())) {
-				jr = JsonResponse.getInstance(prliRepo.save(purchaseRequestLineItem));
+				prliRepo.save(purchaseRequestLineItem);
 				updateTotal(purchaseRequestLineItem);
+				jr = JsonResponse.getInstance(prliRepo.findById(purchaseRequestLineItem.getId()));
 			} else {
 				jr = JsonResponse
 						.getInstance("No PurchaseRequestLineItem exists with id: " + purchaseRequestLineItem.getId());
@@ -116,18 +118,27 @@ public class PurchaseRequestLineItemController {
 	}
 
 	private void updateTotal(PurchaseRequestLineItem prli) {
-		PurchaseRequest pr = prRepo.findById(prli.getPurchaseRequest().getId()).get();
-
+		PurchaseRequestLineItem full = prliRepo.findById(prli.getId()).get();
+		PurchaseRequest pr = prRepo.findById(full.getPurchaseRequest().getId()).get();
+		System.out.println(pr);
 		BigDecimal total = new BigDecimal(0);
-		Iterable<PurchaseRequestLineItem> lineItems = prliRepo.findAllByPurchaseRequestId(pr.getId());
-		for (PurchaseRequestLineItem li : lineItems) {
-			Product p = productRepo.findById(li.getProduct().getId()).get();
-			BigDecimal price = new BigDecimal(p.getPrice());
-			BigDecimal quant = new BigDecimal(li.getQuantity());
-			BigDecimal lineTotal = price.multiply(quant);
-			total.add(lineTotal);
+		try {
+			Iterable<PurchaseRequestLineItem> lineItems = prliRepo.findAllByPurchaseRequestId(pr.getId());
+			for (PurchaseRequestLineItem li : lineItems) {
+				Product p = productRepo.findById(li.getProduct().getId()).get();
+				BigDecimal price = new BigDecimal(p.getPrice());
+				System.out.println(price.doubleValue());
+				BigDecimal quant = new BigDecimal(li.getQuantity());
+				System.out.println(quant.doubleValue());
+				BigDecimal lineTotal = price.multiply(quant);
+				System.out.println(lineTotal.doubleValue());
+				total = total.add(lineTotal);
+				System.out.println(total.doubleValue());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+		total = total.setScale(2, RoundingMode.HALF_UP);
 		pr.setTotal(total.doubleValue());
 		prRepo.save(pr);
 	}

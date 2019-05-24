@@ -2,11 +2,12 @@ package com.prs.web;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.prs.business.JsonResponse;
 import com.prs.business.Product;
 import com.prs.business.PurchaseRequest;
 import com.prs.business.PurchaseRequestLineItem;
+import com.prs.business.User;
 import com.prs.db.ProductRepository;
 import com.prs.db.PurchaseRequestLineItemRepository;
 import com.prs.db.PurchaseRequestRepository;
@@ -62,10 +64,10 @@ public class PurchaseRequestController {
 	}
 
 	@GetMapping("/list-review")
-	public JsonResponse get() {
+	public JsonResponse get(@RequestBody User user) {
 		JsonResponse jr = null;
 		try {
-			jr = JsonResponse.getInstance(purchaseRequestRepository.findByStatus("Review"));
+			jr = JsonResponse.getInstance(purchaseRequestRepository.findAllWithoutIdWithStatus(user.getId(), "Review"));
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 		}
@@ -221,7 +223,7 @@ public class PurchaseRequestController {
 			BigDecimal price = new BigDecimal(p.getPrice());
 			BigDecimal quant = new BigDecimal(li.getQuantity());
 			BigDecimal lineTotal = price.multiply(quant);
-			total.add(lineTotal);
+			total = total.add(lineTotal);
 		}
 		total = total.setScale(2, RoundingMode.HALF_UP);
 		pr.setTotal(total.doubleValue());
