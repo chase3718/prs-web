@@ -218,12 +218,16 @@ public class PurchaseRequestController {
 	private void updateTotal(PurchaseRequest pr) {
 		BigDecimal total = new BigDecimal(0);
 		Iterable<PurchaseRequestLineItem> lineItems = prliRepo.findAllByPurchaseRequestId(pr.getId());
+		try {
 		for (PurchaseRequestLineItem li : lineItems) {
 			Product p = productRepo.findById(li.getProduct().getId()).get();
 			BigDecimal price = new BigDecimal(p.getPrice());
 			BigDecimal quant = new BigDecimal(li.getQuantity());
 			BigDecimal lineTotal = price.multiply(quant);
 			total = total.add(lineTotal);
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		total = total.setScale(2, RoundingMode.HALF_UP);
 		pr.setTotal(total.doubleValue());

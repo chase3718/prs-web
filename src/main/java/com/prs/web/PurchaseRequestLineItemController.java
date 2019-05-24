@@ -127,13 +127,10 @@ public class PurchaseRequestLineItemController {
 			for (PurchaseRequestLineItem li : lineItems) {
 				Product p = productRepo.findById(li.getProduct().getId()).get();
 				BigDecimal price = new BigDecimal(p.getPrice());
-				System.out.println(price.doubleValue());
 				BigDecimal quant = new BigDecimal(li.getQuantity());
-				System.out.println(quant.doubleValue());
 				BigDecimal lineTotal = price.multiply(quant);
-				System.out.println(lineTotal.doubleValue());
 				total = total.add(lineTotal);
-				System.out.println(total.doubleValue());
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
