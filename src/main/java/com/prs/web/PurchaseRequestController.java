@@ -214,24 +214,17 @@ public class PurchaseRequestController {
 	}
 
 	private void updateTotal(PurchaseRequest pr) {
-		double total = 0;
+		BigDecimal total = new BigDecimal(0);
 		Iterable<PurchaseRequestLineItem> lineItems = prliRepo.findAllByPurchaseRequestId(pr.getId());
 		for (PurchaseRequestLineItem li : lineItems) {
 			Product p = productRepo.findById(li.getProduct().getId()).get();
-			Double lineTotal = li.getQuantity() * p.getPrice();
-			total += lineTotal;
+			BigDecimal price = new BigDecimal(p.getPrice());
+			BigDecimal quant = new BigDecimal(li.getQuantity());
+			BigDecimal lineTotal = price.multiply(quant);
+			total.add(lineTotal);
 		}
-		total = round(total, 2);
-		pr.setTotal(total);
+		total = total.setScale(2, RoundingMode.HALF_UP);
+		pr.setTotal(total.doubleValue());
 		purchaseRequestRepository.save(pr);
-	}
-
-	public static double round(double value, int places) {
-		if (places < 0)
-			throw new IllegalArgumentException();
-
-		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
-		return bd.doubleValue();
 	}
 }
