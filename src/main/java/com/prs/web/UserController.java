@@ -1,9 +1,15 @@
 package com.prs.web;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,12 +17,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import com.prs.business.JsonResponse;
 import com.prs.business.User;
 import com.prs.db.UserRepository;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/users")
 public class UserController {
 	@Autowired
@@ -91,16 +99,25 @@ public class UserController {
 		}
 		return jr;
 	}
-	
-	@PostMapping("/authenticate") 
+
+	@PostMapping("/authenticate")
 	public JsonResponse login(@RequestBody User user) {
 		JsonResponse jr = null;
+		String message = "";
 		try {
 			Optional<User> p = userRepository.findByUserNameAndPassword(user.getUserName(), user.getPassword());
 			if (p.isPresent()) {
-				jr = JsonResponse.getInstance(userRepository.findByUserNameAndPassword(user.getUserName(), user.getPassword()));
+				jr = JsonResponse
+						.getInstance(userRepository.findByUserNameAndPassword(user.getUserName(), user.getPassword()));
 			} else {
-				jr = JsonResponse.getInstance("No user found with username or password: " + user.getUserName());
+				Optional<User> u = userRepository.findByUserName(user.getUserName());
+				Optional<User> pas = userRepository.findByPassword(user.getPassword());
+				if (!u.isPresent()) {
+					message += "No account exists with username " + user.getUserName();
+				} else {
+					message += "The password does not match the username " + user.getUserName();
+				}
+				jr = JsonResponse.getInstance(message);
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);

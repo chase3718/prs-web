@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "name": "storage",
+      "type": "com.prs.storage.StorageProperties",
+      "sourceType": "com.prs.storage.StorageProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "storage.location",
+      "type": "java.lang.String",
+      "description": "Folder location for storing files",
+      "sourceType": "com.prs.storage.StorageProperties"
+    }
+  ],
+  "hints": []
+}

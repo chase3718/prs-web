@@ -22,7 +22,16 @@ public class ProductTextFile {
 		productsPath = Paths.get(file);
 		productsFile = productsPath.toFile();
 	}
-
+	
+	public void setProductsPath(String path) {
+		productsPath = Paths.get(path);
+		productsFile = productsPath.toFile();
+	}
+	
+	public Path getProductsPath() {
+		return productsPath;
+	}
+	
 	public List<Product> getAll(Vendor v) {
 		if (products != null) {
 			return products;
