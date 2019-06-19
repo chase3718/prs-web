@@ -23,8 +23,8 @@ import com.prs.business.JsonResponse;
 import com.prs.business.User;
 import com.prs.db.UserRepository;
 
+@CrossOrigin
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/users")
 public class UserController {
 	@Autowired
@@ -84,6 +84,22 @@ public class UserController {
 		}
 		return jr;
 	}
+	
+	@DeleteMapping("/{id}")
+	public JsonResponse delete(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			if (userRepository.existsById(id)) {
+				userRepository.deleteById(id);
+				jr = JsonResponse.getInstance("User deleted");
+			} else {
+				jr = JsonResponse.getInstance("No User with id: " + id);
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
 
 	@PutMapping("/")
 	public JsonResponse update(@RequestBody User user) {
@@ -111,7 +127,7 @@ public class UserController {
 						.getInstance(userRepository.findByUserNameAndPassword(user.getUserName(), user.getPassword()));
 			} else {
 				Optional<User> u = userRepository.findByUserName(user.getUserName());
-				Optional<User> pas = userRepository.findByPassword(user.getPassword());
+				//Optional<User> pas = userRepository.findByPassword(user.getPassword());
 				if (!u.isPresent()) {
 					message += "No account exists with username " + user.getUserName();
 				} else {

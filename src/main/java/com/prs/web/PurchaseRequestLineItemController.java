@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,8 +25,9 @@ import com.prs.db.ProductRepository;
 import com.prs.db.PurchaseRequestLineItemRepository;
 import com.prs.db.PurchaseRequestRepository;
 
+@CrossOrigin
 @RestController
-@RequestMapping("/purchaseRequestLineItems")
+@RequestMapping("/purchase-request-line-items")
 public class PurchaseRequestLineItemController {
 	@Autowired
 	private PurchaseRequestLineItemRepository prliRepo;
@@ -61,6 +63,17 @@ public class PurchaseRequestLineItemController {
 		return jr;
 
 	}
+	
+	@GetMapping("/from-purchase-request/{id}")
+	public JsonResponse fromPurchaseRequest(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(prliRepo.findByPurchaseRequestId(id));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
 
 	@PostMapping("/")
 	public JsonResponse add(@RequestBody PurchaseRequestLineItem prli) {
@@ -92,6 +105,24 @@ public class PurchaseRequestLineItemController {
 				updateTotal(purchaseRequestLineItem);
 			} else {
 				jr = JsonResponse.getInstance("No PurchaseRequestLineItem: " + purchaseRequestLineItem);
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+	
+	@DeleteMapping("/{id}")
+	public JsonResponse delete(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			if (prliRepo.existsById(id)) {
+				prliRepo.findById(id).get().setQuantity(0);
+				updateTotal(prliRepo.findById(id).get());
+				prliRepo.deleteById(id);;
+				jr = JsonResponse.getInstance("PurchaseRequestLineItem deleted");
+			} else {
+				jr = JsonResponse.getInstance("No PurchaseRequestLineItem by id: " + id);
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
@@ -139,4 +170,6 @@ public class PurchaseRequestLineItemController {
 		pr.setTotal(total.doubleValue());
 		prRepo.save(pr);
 	}
+	
+	
 }

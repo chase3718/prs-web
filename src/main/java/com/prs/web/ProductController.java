@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import com.prs.business.Vendor;
 import com.prs.db.ProductRepository;
 import com.prs.db.ProductTextFile;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -54,8 +56,19 @@ public class ProductController {
 		return jr;
 
 	}
+	
+	@GetMapping("/from-vendor/{id}")
+	public JsonResponse fromVendor(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(productRepository.findByVendorId(id));
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
 
-	@PostMapping("/fromFile")
+	@PostMapping("/from-file")
 	public List<JsonResponse> addFromFile(@RequestBody Vendor vendor, @RequestParam String path) {
 		List<JsonResponse> jr = new ArrayList<JsonResponse>();
 		ProductTextFile ptf = new ProductTextFile(path);
@@ -96,6 +109,22 @@ public class ProductController {
 		}
 		return jr;
 	}
+	
+	@DeleteMapping("/{id}")
+	public JsonResponse delete(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			if (productRepository.existsById(id)) {
+				productRepository.deleteById(id);
+				jr = JsonResponse.getInstance("Product deleted");
+			} else {
+				jr = JsonResponse.getInstance("No Product by id: " + id);
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
 
 	@PutMapping("/")
 	public JsonResponse update(@RequestBody Product product) {
@@ -123,7 +152,7 @@ public class ProductController {
 		return jr;
 	}
 
-	@GetMapping("/filteredSearch")
+	@GetMapping("/filtered-search")
 	public JsonResponse fileredSearchProducts(@RequestParam String search, @RequestParam String priceFilter,
 			@RequestParam double price, @RequestParam String vendor) {
 		JsonResponse jr = null;

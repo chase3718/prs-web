@@ -19,10 +19,15 @@ public class StorageService {
 
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	private final Path rootLocation = Paths.get("upload-dir");
+	private final Path photoLocation = Paths.get("photos");
 
-	public void store(MultipartFile file) {
+	public void store(MultipartFile file, String type) {
 		try {
-			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+			if (type.equals("csv")) {
+				Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+			} else if (type.equals("img")) {
+				Files.copy(file.getInputStream(), photoLocation.resolve(file.getOriginalFilename()));
+			}
 		} catch (Exception e) {
 			throw new RuntimeException("FAIL!");
 		}

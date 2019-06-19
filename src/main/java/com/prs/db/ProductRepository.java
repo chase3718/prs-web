@@ -13,4 +13,5 @@ public interface ProductRepository extends CrudRepository<Product, Integer>{
 	Iterable<Product> findByPriceLessThan(@Param("price")double price);
 	@Query("Select p from Product p where p.price >= :price")
 	Iterable<Product> findByPriceGreaterThan(@Param("price")double price);
+	Iterable<Product> findByVendorId(int vendorId);
 }

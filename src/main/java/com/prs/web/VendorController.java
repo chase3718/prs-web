@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import com.prs.business.JsonResponse;
 import com.prs.business.Vendor;
 import com.prs.db.VendorRepository;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/vendors")
 public class VendorController {
@@ -70,6 +72,22 @@ public class VendorController {
 				jr = JsonResponse.getInstance("Vendor deleted");
 			} else {
 				jr = JsonResponse.getInstance("No Vendor: " + vendor);
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+	
+	@DeleteMapping("/{id}")
+	public JsonResponse delete(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			if (vendorRepository.existsById(id)) {
+				vendorRepository.deleteById(id);;
+				jr = JsonResponse.getInstance("Vendor deleted");
+			} else {
+				jr = JsonResponse.getInstance("No Vendor by id: " + id);
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);

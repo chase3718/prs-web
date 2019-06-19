@@ -2,12 +2,15 @@ package com.prs.web;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,8 +28,9 @@ import com.prs.db.ProductRepository;
 import com.prs.db.PurchaseRequestLineItemRepository;
 import com.prs.db.PurchaseRequestRepository;
 
+@CrossOrigin
 @RestController
-@RequestMapping("/purchaseRequests")
+@RequestMapping("/purchase-requests")
 public class PurchaseRequestController {
 	@Autowired
 	private PurchaseRequestRepository purchaseRequestRepository;
@@ -91,6 +95,7 @@ public class PurchaseRequestController {
 		JsonResponse jr = null;
 		try {
 			purchaseRequest.setStatus("New");
+			purchaseRequest.setSubmittedDate(LocalDate.now());
 			updateTotal(purchaseRequest);
 			jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
 
@@ -197,13 +202,29 @@ public class PurchaseRequestController {
 		}
 		return jr;
 	}
+	
+	@DeleteMapping("/{id}")
+	public JsonResponse delete(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			if (purchaseRequestRepository.existsById(id)) {
+
+				purchaseRequestRepository.deleteById(id);;
+				jr = JsonResponse.getInstance("PurchaseRequest deleted");
+			} else {
+				jr = JsonResponse.getInstance("No PurchaseRequest by id: " + id);
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
 
 	@PutMapping("/")
 	public JsonResponse update(@RequestBody PurchaseRequest purchaseRequest) {
 		JsonResponse jr = null;
 		try {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
-
 				updateTotal(purchaseRequest);
 				jr = JsonResponse.getInstance(purchaseRequestRepository.save(purchaseRequest));
 			} else {

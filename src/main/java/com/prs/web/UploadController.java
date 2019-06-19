@@ -24,8 +24,8 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import com.prs.db.ProductTextFile;
 import com.prs.storage.StorageService;
 
+@CrossOrigin
 @Controller
-@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/files")
 public class UploadController {
 
@@ -35,11 +35,13 @@ public class UploadController {
 
 	List<String> files = new ArrayList<String>();
 
-	@PostMapping("/post")
+	@PostMapping("/post{type}")
 	public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
 		String message = "";
 		try {
-			storageService.store(file);
+			String type = file.getContentType();
+			System.out.println(type);
+			storageService.store(file, type);
 			files.add(file.getOriginalFilename());
 
 			message = "You successfully uploaded " + file.getOriginalFilename() + "! Path: "
@@ -53,7 +55,7 @@ public class UploadController {
 		}
 	}
 
-	@GetMapping("/getallfiles")
+	@GetMapping("/get-all-files")
 	public ResponseEntity<List<String>> getListFiles(Model model) {
 		List<String> fileNames = files
 				.stream().map(fileName -> MvcUriComponentsBuilder
