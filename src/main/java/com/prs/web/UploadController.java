@@ -39,15 +39,19 @@ public class UploadController {
 	public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
 		String message = "";
 		try {
+			System.out.println("Good 1");
 			String type = file.getContentType();
+			System.out.println("Good 2");
 			System.out.println(type);
-			storageService.store(file, type);
+			System.out.println("Good 3");
+			storageService.store(file);
+			System.out.println("Good 4");
 			files.add(file.getOriginalFilename());
+			System.out.println("Good 5");
 
-			message = "You successfully uploaded " + file.getOriginalFilename() + "! Path: "
-					+ ptf.getProductsPath().toString();
-			ptf.setProductsPath(file.getOriginalFilename());
-			System.out.println("Path: " + ptf.getProductsPath().toString());
+			//message = "You successfully uploaded " + file.getOriginalFilename() + "! Path: "
+			//		+ ptf.getProductsPath().toString();
+			System.out.println("Good 6");
 			return ResponseEntity.status(HttpStatus.OK).body(message);
 		} catch (Exception e) {
 			message = "Failed to upload " + file.getOriginalFilename() + "!";

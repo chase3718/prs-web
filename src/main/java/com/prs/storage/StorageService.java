@@ -21,13 +21,12 @@ public class StorageService {
 	private final Path rootLocation = Paths.get("upload-dir");
 	private final Path photoLocation = Paths.get("photos");
 
-	public void store(MultipartFile file, String type) {
+	public void store(MultipartFile file) {
 		try {
-			if (type.equals("csv")) {
-				Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
-			} else if (type.equals("img")) {
-				Files.copy(file.getInputStream(), photoLocation.resolve(file.getOriginalFilename()));
-			}
+			deleteAll();
+			init();
+			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+			System.out.println("Good 2");
 		} catch (Exception e) {
 			throw new RuntimeException("FAIL!");
 		}

@@ -27,6 +27,7 @@ import com.prs.business.User;
 import com.prs.db.ProductRepository;
 import com.prs.db.PurchaseRequestLineItemRepository;
 import com.prs.db.PurchaseRequestRepository;
+import com.prs.db.UserRepository;
 
 @CrossOrigin
 @RestController
@@ -38,6 +39,8 @@ public class PurchaseRequestController {
 	private PurchaseRequestLineItemRepository prliRepo;
 	@Autowired
 	private ProductRepository productRepo;
+	@Autowired
+	private UserRepository userRepo;
 
 	@GetMapping("/")
 	public JsonResponse getAll() {
@@ -66,7 +69,24 @@ public class PurchaseRequestController {
 		return jr;
 
 	}
+	
+	@GetMapping("/user/{id}")
+	public JsonResponse getByUser(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			Iterable<PurchaseRequest> p = purchaseRequestRepository.findByUser(userRepo.findById(id).get());
+			if (p != null) {
+				jr = JsonResponse.getInstance(p);
+			} else {
+				jr = JsonResponse.getInstance("No purchaseRequest found for id: " + id);
+			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
 
+	}
+	
 	@GetMapping("/list-review")
 	public JsonResponse get(@RequestBody User user) {
 		JsonResponse jr = null;
@@ -209,8 +229,8 @@ public class PurchaseRequestController {
 		try {
 			if (purchaseRequestRepository.existsById(id)) {
 
-				purchaseRequestRepository.deleteById(id);;
-				jr = JsonResponse.getInstance("PurchaseRequest deleted");
+				jr = JsonResponse.getInstance(purchaseRequestRepository.findById(id));
+				purchaseRequestRepository.deleteById(id);
 			} else {
 				jr = JsonResponse.getInstance("No PurchaseRequest by id: " + id);
 			}

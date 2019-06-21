@@ -1,5 +1,7 @@
 package com.prs.web;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +23,7 @@ import com.prs.business.Product;
 import com.prs.business.Vendor;
 import com.prs.db.ProductRepository;
 import com.prs.db.ProductTextFile;
+import com.prs.storage.StorageService;
 
 @CrossOrigin
 @RestController
@@ -68,10 +71,12 @@ public class ProductController {
 		return jr;
 	}
 
+	private final Path rootLocation = Paths.get("upload-dir");
+	
 	@PostMapping("/from-file")
-	public List<JsonResponse> addFromFile(@RequestBody Vendor vendor, @RequestParam String path) {
+	public List<JsonResponse> addFromFile(@RequestBody Vendor vendor) {
 		List<JsonResponse> jr = new ArrayList<JsonResponse>();
-		ProductTextFile ptf = new ProductTextFile(path);
+		ProductTextFile ptf = new ProductTextFile(rootLocation + "/products.csv");
 		try {
 			List<Product> products = ptf.getAll(vendor);
 			for (Product p : products) {
