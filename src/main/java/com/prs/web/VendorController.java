@@ -84,8 +84,8 @@ public class VendorController {
 		JsonResponse jr = null;
 		try {
 			if (vendorRepository.existsById(id)) {
+				jr = JsonResponse.getInstance(vendorRepository.findById(id));
 				vendorRepository.deleteById(id);;
-				jr = JsonResponse.getInstance("Vendor deleted");
 			} else {
 				jr = JsonResponse.getInstance("No Vendor by id: " + id);
 			}

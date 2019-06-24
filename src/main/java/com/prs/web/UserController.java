@@ -90,8 +90,8 @@ public class UserController {
 		JsonResponse jr = null;
 		try {
 			if (userRepository.existsById(id)) {
+				jr = JsonResponse.getInstance(userRepository.findById(id));
 				userRepository.deleteById(id);
-				jr = JsonResponse.getInstance("User deleted");
 			} else {
 				jr = JsonResponse.getInstance("No User with id: " + id);
 			}

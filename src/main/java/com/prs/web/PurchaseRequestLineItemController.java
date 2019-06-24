@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -117,13 +118,25 @@ public class PurchaseRequestLineItemController {
 		JsonResponse jr = null;
 		try {
 			if (prliRepo.existsById(id)) {
+				jr = JsonResponse.getInstance(prliRepo.findById(id));
 				prliRepo.findById(id).get().setQuantity(0);
 				updateTotal(prliRepo.findById(id).get());
 				prliRepo.deleteById(id);;
-				jr = JsonResponse.getInstance("PurchaseRequestLineItem deleted");
 			} else {
 				jr = JsonResponse.getInstance("No PurchaseRequestLineItem by id: " + id);
 			}
+		} catch (Exception e) {
+			jr = JsonResponse.getInstance(e);
+		}
+		return jr;
+	}
+	
+	@Transactional
+	@DeleteMapping("/delete-by-pr/{id}")
+	public JsonResponse deleteByPr(@PathVariable int id) {
+		JsonResponse jr = null;
+		try {
+			jr = JsonResponse.getInstance(prliRepo.deleteByPurchaseRequestId(id));
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 		}

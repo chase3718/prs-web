@@ -120,8 +120,8 @@ public class ProductController {
 		JsonResponse jr = null;
 		try {
 			if (productRepository.existsById(id)) {
+				jr = JsonResponse.getInstance(productRepository.findById(id));
 				productRepository.deleteById(id);
-				jr = JsonResponse.getInstance("Product deleted");
 			} else {
 				jr = JsonResponse.getInstance("No Product by id: " + id);
 			}
