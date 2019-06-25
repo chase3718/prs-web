@@ -26,7 +26,6 @@ public class StorageService {
 			deleteAll();
 			init();
 			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
-			System.out.println("Good 2");
 		} catch (Exception e) {
 			throw new RuntimeException("FAIL!");
 		}
