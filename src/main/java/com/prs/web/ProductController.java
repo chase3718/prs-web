@@ -31,6 +31,8 @@ import com.prs.storage.StorageService;
 public class ProductController {
 	@Autowired
 	private ProductRepository productRepository;
+	@Autowired
+	private StorageService storageService;
 
 	@GetMapping("/")
 	public JsonResponse getAll() {
@@ -82,6 +84,9 @@ public class ProductController {
 			for (Product p : products) {
 				jr.add(JsonResponse.getInstance(productRepository.save(p)));
 			}
+			
+			storageService.deleteAll();
+			storageService.init();
 		} catch (Exception e) {
 			jr.add(JsonResponse.getInstance(e));
 		}

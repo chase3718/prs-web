@@ -61,4 +61,10 @@ public class JsonResponse {
 	public static JsonResponse getInstance(String s) {
 		return new JsonResponse(s);
 	}
+
+	@Override
+	public String toString() {
+		return "JsonResponse [data=" + data + ", errors=" + errors + ", meta=" + meta + "]";
+	}
+
 }

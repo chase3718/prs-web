@@ -87,6 +87,7 @@ public class ProductTextFile {
 			System.out.println(productsPath.toAbsolutePath() + " doesn't exist.");
 			return null;
 		}
+		
 		return products;
 	}
 
