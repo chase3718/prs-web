@@ -160,12 +160,6 @@ public class UserController {
 		return jr;
 	}
 
-	/**
-	 * Method for Encrypt Plain String Data
-	 * 
-	 * @param plainText
-	 * @return encryptedText
-	 */
 	public static String encrypt(String plainText) {
 		String encryptedText = "";
 		try {
@@ -184,12 +178,6 @@ public class UserController {
 		return encryptedText;
 	}
 
-	/**
-	 * Method For Get encryptedText and Decrypted provided String
-	 * 
-	 * @param encryptedText
-	 * @return decryptedText
-	 */
 	public static String decrypt(String encryptedText) {
 		String decryptedText = "";
 		try {
