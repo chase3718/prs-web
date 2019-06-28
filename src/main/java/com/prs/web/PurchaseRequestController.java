@@ -153,7 +153,7 @@ public class PurchaseRequestController {
 			if (purchaseRequestRepository.existsById(purchaseRequest.getId())) {
 				PurchaseRequest pr = purchaseRequestRepository.findById(purchaseRequest.getId()).get();
 				if (pr.getStatus().equals("Review")) {
-					pr.setStatus("Aprroved");
+					pr.setStatus("Approved");
 					jr = JsonResponse.getInstance(purchaseRequestRepository.save(pr));
 				} else {
 					jr = JsonResponse.getInstance("Purchase Request must be in review");
